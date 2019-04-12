@@ -117,6 +117,9 @@ build-only:
 .PHONY: push
 push: check-operator-images
 	docker push $(CATALOG_IMAGE_URI)
+	# Workaround for https://github.com/openshift/osd-operators-registry/issues/14
+	CATALOG_IMAGE_DIGEST=$$(docker inspect $(CATALOG_IMAGE_URI) | jq -r '.[].RepoDigests[0]'); \
+	sed -i "s|^\([ ]*\)\(image:.*\)|\1# Workaround for https://github.com/openshift/osd-operators-registry/issues/14\n\1# \2\n\1image: $${CATALOG_IMAGE_DIGEST} |g" manifests/00-catalog.yaml
 
 .PHONY: git-commit
 git-commit:
